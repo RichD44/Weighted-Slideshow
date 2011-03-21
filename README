@@ -1,0 +1,73 @@
+Weighted Slideshow
+------------------
+
+Version 0.1 - March 21, 2011
+Author: RichD
+
+Creates a playlist file from image files in the current directory.
+
+The images included in the playlist are randomly selected using an algorithm
+that strongly favors newer images, i.e., the newer the image, the higher 
+its chance of being chosen.
+
+The playlist file can then be used as input to your favorite utility.
+The author recommends the lightweight linux viewer 'feh'.
+
+Note that there's no reason to use this script unless you're looking for a 
+way to favor newer pics during the random selection process. Many image viewers
+can easily display a slideshow of randomly selected pics. But they won't favor
+files with newer modification times over older ones.
+
+By default, weightedss.sh looks for jpg, png, gif, and tif files. If you want
+different behavior (perhaps you have some .JPG files or you found a viewer that
+supports gimp .xcf files), then simply edit the first code line of the script:
+	ftypes="*.jpg *.png *.gif *.tif"
+
+Usage: weightedss.sh filename count
+	where:
+		filename - name of file to be built containing the weighted play list.
+			The default is "weightedssplaylist".
+		count - number of images to select for the show. The default is all
+			images in the current directory. However, if you have a lot of images
+			and only want the playlist to include a random subset, specifying a
+			count will speed up the selection/weighting/randomization process.
+			Note that this does NOT mean that the playlist will contain only the
+			<count> most recent images; ALL images will be considered, but newer
+			images will be favored and only <count> images will be selected.
+
+Basic usage example:
+	> cd ~/myfavimages
+	> weightedss.sh fehssplaylist 100
+	> feh -zFD20 --hide-pointer -f fehssplaylist
+
+
+Advanced usage example - wrapper script to show slideshow on your TV:
+
+To use this script, your computer must have a video card that can output 
+to your TV. In this example, the output is an S-video cable with a resolution
+of 800x600.
+
+#!/bin/bash
+# prevent screensaver from starting during your show
+xset s off
+xset -dpms
+
+pushd ~/myfavimages >> /dev/null
+
+# make a weighted playlist with 100 images called fehssplaylist
+weightedss.sh fehssplaylist 100
+
+# display the show defined in the playlist
+xrandr --output S-video --auto
+feh -zxD20 -g 800x600 --hide-pointer -f fehssplaylist
+xrandr --output S-video --off
+
+popd >> /dev/null
+
+# re-allow screensaver
+xset s on
+xset +dpms
+
+	
+	
+
